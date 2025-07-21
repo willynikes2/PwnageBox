@@ -1,6 +1,6 @@
-```python
 from fastapi import FastAPI
 from pwnagebox.modules import scammer, researcher, pwner, voicepwner
+from pwnagebox.database import init_db
 
 app = FastAPI()
 
@@ -23,4 +23,8 @@ def perform_exploit():
 @app.post("/social_engineering")
 def perform_social_engineering():
     return voicepwner.conduct_attack()
-```
+
+@app.on_event("startup")
+def startup_event():
+    """Initialize the database on startup."""
+    init_db()

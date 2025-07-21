@@ -1,0 +1,3 @@
+project: pwnagebox
+context7:
+  mcp_server: https://context7.upstash.io

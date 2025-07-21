@@ -1,4 +1,3 @@
-```python
 from fastapi import FastAPI
 from app.routers import ai
 
@@ -9,4 +8,3 @@ app.include_router(ai.router)
 @app.get("/")
 async def root():
     return {"message": "Welcome to PwnageBox"}
-```

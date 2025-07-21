@@ -1,4 +1,3 @@
-```python
 from fastapi import APIRouter
 from app.ai_modules import example
 
@@ -8,4 +7,3 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 async def get_example():
     result = example.run_example()
     return {"result": result}
-```

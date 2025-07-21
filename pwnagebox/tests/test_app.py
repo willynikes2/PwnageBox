@@ -1,4 +1,3 @@
-```python
 from fastapi.testclient import TestClient
 from pwnagebox.app import app
 
@@ -28,4 +27,3 @@ def test_perform_social_engineering():
     response = client.post("/social_engineering")
     assert response.status_code == 200
     assert "status" in response.json()
-```

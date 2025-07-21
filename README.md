@@ -1,5 +1,4 @@
-```markdown
-# PwnageBox
+# # PwnageBox
 
 PwnageBox is a project designed to create a secure and efficient environment for testing AI modules and exposing them via a FastAPI backend. The application uses Docker for containerization and SQLite for persistent storage.
 
@@ -18,27 +17,26 @@ PwnageBox is a project designed to create a secure and efficient environment for
 
 ## Setup
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/PwnageBox.git
-   cd PwnageBox
-   ```
+### Prerequisites
+- Python 3.8 or newer
+- Poetry
+- Docker
 
-2. Install dependencies using Poetry:
-   ```bash
-   poetry install
-   ```
+### Install dependencies
+```bash
+poetry install
+```
 
-3. Run the application:
-   ```bash
-   poetry run uvicorn app.main:app --reload
-   ```
+### Run locally
+```bash
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-4. Build and run with Docker:
-   ```bash
-   docker build -t pwnagebox .
-   docker run -d -p 8000:8000 pwnagebox
-   ```
+### Docker
+```bash
+docker build -t pwnagebox .
+docker run -d -p 8000:8000 pwnagebox
+```
 
 ## API Documentation
 
@@ -53,5 +51,3 @@ Access the API documentation at `http://localhost:8000/docs` when the server is 
 
 - The application uses SQLite for storage.
 - Database file is located at `./data/database.db`.
-
-```

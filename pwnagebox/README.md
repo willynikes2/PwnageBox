@@ -1,4 +1,3 @@
-```markdown
 # PwnageBox: Autonomous AI Cybersecurity Platform
 
 ## Overview
@@ -11,12 +10,35 @@ PwnageBox is a plug-and-pwn AI-powered cybersecurity device that autonomously sc
 - Social engineering simulations with voice cloning
 
 ## Installation
-1. Clone the repository.
-2. Build using Docker or install dependencies via `pyproject.toml`.
+
+### Prerequisites
+- Python 3.9 or newer
+- pip
+
+### Install dependencies
+```bash
+pip install .
+```
 
 ## Usage
-- Deploy on-site and receive automated reports.
-- Utilize different deployment modes based on your needs.
+
+### Run locally
+```bash
+uvicorn pwnagebox.app:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Docker
+```bash
+docker build -t pwnagebox .
+docker run -d -p 8000:8000 pwnagebox
+```
+
+### API Endpoints
+- `GET /` : Welcome message.
+- `POST /scan` : Perform environment scan.
+- `POST /research` : Analyze vulnerabilities.
+- `POST /exploit` : Execute exploits.
+- `POST /social_engineering` : Conduct social engineering attack.
 
 ## System Modules
 - **Scammer:** Recon AI for environment scanning and fingerprinting.
@@ -27,4 +49,3 @@ PwnageBox is a plug-and-pwn AI-powered cybersecurity device that autonomously sc
 ## Reporting
 - Generates encrypted vulnerability reports.
 - Supports Markdown, HTML, and PDF formats.
-```
