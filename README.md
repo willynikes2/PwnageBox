@@ -1,53 +1,49 @@
-# # PwnageBox
+# PwnageBox
 
-PwnageBox is a project designed to create a secure and efficient environment for testing AI modules and exposing them via a FastAPI backend. The application uses Docker for containerization and SQLite for persistent storage.
+**PwnageBox** is an AI-powered offensive cybersecurity platform designed for network reconnaissance, vulnerability research, and automated exploitation. It combines multi-radio scanning (WiFi, Bluetooth, Zigbee, etc.) with agentic AI modules that simulate the behavior of expert red-teamers — including reconnaissance, fingerprinting, exploit matching, and real-world pwnage execution via tools like Metasploit.
 
-## Features
+Built for white hat and black hat simulation environments, PwnageBox provides a fully modular FastAPI backend with support for SQLite, Docker, and real-time AI decision-making.
 
-- AI modules for different purposes.
-- FastAPI backend for API exposure.
-- Dockerfile for containerizing the application.
-- SQLite database integration.
+---
 
-## Requirements
+## 🔥 Core Capabilities
 
-- Python 3.8 or newer
+- 🧠 **Scammer AI** – Performs active/passive radio-based scanning, identifies and fingerprints nearby devices.
+- 🕵️ **Researcher AI** – Maps detected devices to known vulnerabilities (CVEs, exploit DBs, and zero-day heuristics).
+- 💣 **Pwner AI** – Executes exploitation workflows, including direct integration with Metasploit.
+- 🗣️ **VoicePwner AI** – Experimental module for voice cloning and social engineering simulation.
+- 📡 Multi-radio support – Designed to interface with WiFi, Bluetooth, Zigbee, and SDR hardware.
+- 📦 FastAPI-based backend with clean modular endpoints.
+- 🐳 Dockerized deployment for edge devices or cloud simulation.
+- 🧠 Powered by Codex + Context7 for continuous self-updating logic.
+- 📄 Integrated with SQLite for audit trails and result persistence.
+
+---
+
+## 🧰 Tech Stack
+
+- Python 3.12+
+- FastAPI
+- SQLite
 - Docker
-- Poetry (for dependency management)
+- OpenAI (Codex + GPT)
+- Context7 for MCP/project context
+- Metasploit Framework (optional, for exploitation module)
 
-## Setup
+---
+
+## 🚀 Setup Instructions
 
 ### Prerequisites
-- Python 3.8 or newer
-- Poetry
-- Docker
 
-### Install dependencies
+- Python 3.12+
+- [Poetry](https://python-poetry.org/docs/#installation)
+- Docker (for containerized deployment)
+- Metasploit Framework (optional, for Pwner AI)
+
+---
+
+### 📦 Local Installation
+
 ```bash
 poetry install
-```
-
-### Run locally
-```bash
-poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Docker
-```bash
-docker build -t pwnagebox .
-docker run -d -p 8000:8000 pwnagebox
-```
-
-## API Documentation
-
-Access the API documentation at `http://localhost:8000/docs` when the server is running.
-
-## Modules
-
-- AI modules are located in the `ai_modules` directory.
-- Each module can be accessed via API endpoints.
-
-## Database
-
-- The application uses SQLite for storage.
-- Database file is located at `./data/database.db`.
