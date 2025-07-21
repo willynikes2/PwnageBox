@@ -1,143 +1,105 @@
-# 📦 PWNAGEBOX — Unified PRD & SRS
+# PwnageBox System Specification
+
+**Version:** 2.0  
+**Date:** 2025-07-21  
+**Author:** Presient Systems
 
 ---
 
-## 🧠 Project Name
-**PwnageBox: Autonomous AI Cybersecurity Platform**
+## 🧠 Overview
 
-## 📅 Version
-v1.0  
-Date: July 18, 2025  
-Author: Presient Labs
+**PwnageBox** is a plug-and-play AI-powered cybersecurity appliance for offensive and defensive simulation, red teaming, and zero-day validation. It combines multi-radio scanning hardware with modular AI agents to autonomously identify, exploit, and verify vulnerabilities in networks and software systems. Built for both ethical hackers and enterprise red teams, PwnageBox is designed to function independently or in orchestrated clusters.
 
 ---
 
-## 📌 Executive Summary
+## 🚀 Features
 
-PwnageBox is a plug-and-pwn AI-powered cybersecurity device designed to autonomously scan, exploit, and report on vulnerabilities in any target environment — digital or human. It uses multiple radios (WiFi, Bluetooth, Zigbee, SDR, etc.) to map and interact with the surrounding attack surface, then deploys three agentic AI modules:
+### Core AI Modules
+| Module        | Purpose                                                       |
+|---------------|---------------------------------------------------------------|
+| `scammer`     | Performs multi-radio reconnaissance (WiFi, BT, Zigbee, SDR)   |
+| `researcher`  | Matches targets against CVEs, MCP databases, or theorizes 0-days |
+| `pwner`       | Executes exploits using Metasploit or custom payloads         |
+| `voicepwner`  | Uses voice cloning + scripts for social engineering           |
 
-- **Scammer**: Recon + device fingerprinting
-- **Researcher**: Exploit reasoning + 0-day discovery
-- **Pwner**: Goal-driven exploit executor
+### Exploitation Integration
+- Full Metasploit integration: Pwner AI can trigger exploits from Metasploit when high-confidence targets are found.
+- Pre-configured module support for common exploits.
+- Logs exploit success/failure in local database and Context7.
 
-In Enterprise mode, the box is deployed by a field agent (technical or not) and left on-site. It autonomously performs its functions and emails a full vulnerability report to clients at the end of the day.
+### Zero-Day Marketplace Pipeline
+- 🔍 Hacker submits PoC anonymously (wallet-only)
+- 🧪 AI deploys code in isolated Docker/LXD simulation
+- 🤖 AI agent attempts to verify exploit effect
+- ✅ If verified, payment is issued automatically via Lightning/ETH/USDC/etc
+- 🧾 Log stored in secure audit trail for later inspection
+- ❌ Invalid exploits are flagged and blacklisted
 
-A dedicated **Social Engineering Module** augments attacks with AI-generated pretexts and voice cloning to test human-layer security and trust models.
-
----
-
-## 🎯 Product Goals
-
-- Scan and exploit with no user input
-- Work offline or sync with a cloud-based command hub
-- Be deployable by non-technical field agents
-- Enable red/blue team assessments, patching, or silent persistence
-- Deliver clear reports to stakeholders automatically
-- Include human-layer (social) testing via AI-generated attacks
-
----
-
-## 🧩 Core System Modules
-
-### 1. Scammer (Recon AI)
-- Multi-radio scanning (WiFi, Zigbee, BLE, SDR)
-- OS/service fingerprinting
-- Firmware version and vendor mapping
-- MAC signal tracking
-- Output: Structured device fingerprint database
-
-### 2. Researcher (Exploit Reasoning AI)
-- Matches fingerprints to CVEs using Vulners/NVD/ExploitDB
-- Ranks exploit probability
-- Tags targets as patchable, vulnerable, or persistent candidates
-- Contains Zero-Day Discovery Pipeline:
-  - Decompilation (Ghidra, Binary Ninja, Cutter)
-  - Static analysis (CodeQL + GPT)
-  - Symbolic execution (angr)
-  - Fuzzing (AFL++, Boofuzz)
-  - GPT-guided exploit synthesis
-
-### 3. Pwner (Agentic Exploit Engine)
-- Executes chosen exploits via metasploit-style interface
-- Selects execution goals: Patch, Persist, Report, or Observe
-- Backdoor injection and credential theft
-- Logs outcomes per target
+### Context7 Integration
+- Used to store session history, logs, and regenerate agent plans
+- Connected to Codex and Codex Agent
 
 ---
 
-## 🗣️ 4. Social Engineering Module: `voicepwner`
-- Voice cloning using LLM TTS models (ElevenLabs, Coqui, Bark)
-- GPT-4o/Claude generates phone/email pretexts (CEO voice, fake IT calls, etc.)
-- Voice playback scripts executed via phone, SIP, or Slack bot
-- Logs response outcome, triggers, and trust levels
+## 🧰 Integrated MCP Servers
+
+| MCP Server       | Tool Used     | Functionality                                                  |
+|------------------|---------------|----------------------------------------------------------------|
+| `WireMCP`        | Wireshark     | Live capture, PCAP analysis, interface targeting               |
+| `nmap-mcp-server`| Nmap          | Port scanning, OS fingerprinting, script engine                |
+| `MCP-Snyk`       | Snyk API      | Vulnerability scan for repos, token-based org access           |
+| `Semgrep MCP`    | Semgrep       | Static code analysis with rule customization                   |
+| `HackerNews MCP` | Web crawler   | Search by keyword, scrape discussions, threat intelligence     |
+
+These services are queried on demand by the AI modules to enrich recon and exploit research.
 
 ---
 
-## 💻 User Interaction
+## 🛠️ Architecture
 
-### Admin/Hacker
-- Maintains exploit DB
-- Pushes updates to boxes via Git or REST API
-- Monitors device syncs and activation
+### Components
+- `FastAPI` backend (REST + Web UI)
+- `Docker` container for deployment
+- `SQLite` for lightweight embedded storage
+- `codex-agent` for local development / CI use
+- `codex.yaml` for Context7 integration
 
-### Field Agent
-- Plugs in box (WiFi auto-connect or fallback AP mode)
-- No CLI or setup required
-- Reports auto-sent to client email or S3 bucket
-
-### Client
-- Receives encrypted report PDF or secure portal link
-- Report includes summary, vulnerabilities, fixes, and human-layer test results
-
----
-
-## 📦 Hardware Specification (MVP)
-
-| Component         | Model / Notes                                 |
-|------------------|-----------------------------------------------|
-| Compute Core     | Raspberry Pi 5 or Jetson Orin Nano             |
-| Storage          | 512GB–1TB SSD (USB 3.0 or onboard NVMe)       |
-| WiFi Adapters    | Alfa AWUS036ACH + Panda PAU09                 |
-| Bluetooth        | ASUS BT500                                     |
-| Zigbee           | ConBee II                                      |
-| Z-Wave           | Aeotec Z-Stick 7                               |
-| SDR              | HackRF One or RTL-SDR Blog V3                  |
-| Power Supply     | USB-C 45W PD bank or AC adapter                |
-| Interface        | Web GUI only (http://pwnagebox.local)          |
-| Optional Display | eInk or HDMI touch panel (for branding/demo)  |
+### Directory Layout
+```
+pwnagebox/
+├── app/
+│   ├── ai_modules/
+│   ├── routers/
+│   ├── database.py
+│   ├── main.py
+├── modules/ (AI & MCP server interfaces)
+├── metasploit/ (scripts, config, interaction layer)
+├── tests/
+├── codex-agent-c7.py
+├── codex.yaml
+├── Dockerfile
+├── README.md
+└── pyproject.toml
+```
 
 ---
 
-## 🔁 Deployment Modes
+## 🧪 Example Zero-Day Validation Flow
 
-| Mode        | Behavior                                                   |
-|-------------|------------------------------------------------------------|
-| Audit       | Recon + report only                                        |
-| Pentest     | Exploits + remediation suggestions                         |
-| Red Team    | Full exploit + optional persistence + human trust attack   |
-| SE Only     | Run only social engineering module                         |
-| Zero Day    | Enable deep binary analysis and fuzzing                    |
-
-All modes are controlled by license keys and signed activation policies.
+1. Hacker sends exploit PoC and target fingerprint
+2. AI launches sandbox sim via LXD with service running
+3. Exploit code is executed
+4. AI confirms effect (e.g. reverse shell, data leak, crash)
+5. If verified, triggers crypto payment via Lightning or EVM-compatible chain
+6. Adds report to ledger & notifies admin
 
 ---
 
-## 🧾 Reporting System
+## 🧾 Notes
 
-- Markdown → HTML → PDF export
-- Encrypted ZIP emailed to:
-  - Field agent
-  - Client
-  - Admin (optional)
-- Includes:
-  - Device map
-  - Vulnerability details
-  - Exploits used
-  - Fix suggestions
-  - Trust test outcomes
-  - CVSS scoring + risk matrix
+- Project is designed to be extensible. Future features include swarm coordination and cloud bursting.
+- Admin dashboard will later be added for monitoring, auto-deployment, and audit trails.
 
 ---
 
-## 🗄️ Directory Structure
-
+© 2025 Presient Solutions. All rights reserved.
