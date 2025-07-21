@@ -1,0 +1,18 @@
+```toml
+[tool.poetry]
+name = "pwnagebox"
+version = "0.1.0"
+description = "A project for testing AI modules with FastAPI and Docker."
+authors = ["Your Name <youremail@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.95.0"
+uvicorn = "^0.21.1"
+sqlalchemy = "^2.0"
+aiofiles = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.1.0"]
+build-backend = "poetry.core.masonry.api"
+```

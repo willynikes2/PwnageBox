@@ -1,0 +1,17 @@
+```toml
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "PwnageBox"
+version = "1.0.0"
+description = "Autonomous AI Cybersecurity Platform"
+authors = [{name = "Presient Labs", email = "contact@presientlabs.ai"}]
+
+[tool.poetry.dependencies]
+fastapi = "^0.70.0"
+uvicorn = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+```
