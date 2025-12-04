@@ -1,0 +1,171 @@
+version: '3.8'
+
+# ============================================================================
+# PwnageBox Public Portfolio Lab - Hardened Docker Compose
+# Author: Shawn Daniel (Presient Labs)
+# Purpose: Production-ready cyber attack simulation for portfolio demonstration
+# ============================================================================
+
+networks:
+  pwn_net:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+  # ==========================================================================
+  # SPLUNK ENTERPRISE - SIEM & Log Aggregation
+  # ==========================================================================
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    hostname: splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD:-PwnageBox2024!}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_TOKEN:-pwnagebox-hec-token-2024}
+    ports:
+      - "8000:8000"   # Splunk Web UI
+      - "8088:8088"   # HEC (HTTP Event Collector)
+    volumes:
+      - splunk_data:/opt/splunk/var
+      - ./splunk/dashboard.xml:/opt/splunk/etc/apps/search/local/data/ui/views/pwnagebox_dashboard.xml:ro
+    networks:
+      pwn_net:
+        ipv4_address: 172.30.0.10
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  # ==========================================================================
+  # VICTIM-FTP - Vulnerable vsftpd 2.3.4 Target
+  # ==========================================================================
+  victim-ftp:
+    build:
+      context: ./victim
+      dockerfile: Dockerfile
+    container_name: victim-ftp
+    hostname: victim-ftp
+    networks:
+      pwn_net:
+        ipv4_address: 172.30.0.20
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+
+  # ==========================================================================
+  # PWNBOX - Attack Simulation Engine
+  # ==========================================================================
+  pwnbox:
+    build:
+      context: ./pwnbox
+      dockerfile: Dockerfile
+    container_name: pwnbox
+    hostname: pwnbox
+    environment:
+      - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
+      - SPLUNK_HEC_TOKEN=${SPLUNK_TOKEN:-pwnagebox-hec-token-2024}
+      - TARGET_HOST=victim-ftp
+      - TARGET_PORT=21
+    depends_on:
+      splunk:
+        condition: service_healthy
+      victim-ftp:
+        condition: service_started
+    networks:
+      pwn_net:
+        ipv4_address: 172.30.0.30
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: "no"
+
+  # ==========================================================================
+  # TRAFFIC-GEN - Background Cisco Router Traffic Simulator
+  # ==========================================================================
+  traffic-gen:
+    build:
+      context: ./traffic-gen
+      dockerfile: Dockerfile
+    container_name: traffic-gen
+    hostname: traffic-gen
+    environment:
+      - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
+      - SPLUNK_HEC_TOKEN=${SPLUNK_TOKEN:-pwnagebox-hec-token-2024}
+    depends_on:
+      splunk:
+        condition: service_healthy
+    networks:
+      pwn_net:
+        ipv4_address: 172.30.0.40
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+
+  # ==========================================================================
+  # WEB-UI - Flask Controller (Public Interface with Auth)
+  # ==========================================================================
+  web-ui:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile
+    container_name: web-ui
+    hostname: web-ui
+    environment:
+      - RECRUITER_PASSWORD=${RECRUITER_PASSWORD:-YOURPASSWORD}
+      - RATE_LIMIT_SECONDS=45
+      - FLASK_ENV=production
+    ports:
+      - "80:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - splunk
+      - pwnbox
+    networks:
+      pwn_net:
+        ipv4_address: 172.30.0.50
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+
+volumes:
+  splunk_data:
+    driver: local

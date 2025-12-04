@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PwnageBox | AI-Powered Offensive Security Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008f11;
+            --cyber-blue: #00d4ff;
+            --cyber-purple: #bf00ff;
+            --danger-red: #ff0040;
+            --warning-orange: #ff9500;
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --text-primary: #e0e0e0;
+            --text-muted: #888;
+            --border-color: #2a2a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Matrix Rain Effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.05;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--matrix-green), var(--cyber-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(0, 255, 65, 0.3);
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .author {
+            margin-top: 15px;
+            color: var(--cyber-blue);
+            font-size: 0.9rem;
+        }
+
+        /* Status Panel */
+        .status-panel {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: var(--matrix-green);
+            box-shadow: 0 0 10px var(--matrix-green);
+        }
+
+        .status-dot.offline {
+            background: var(--danger-red);
+            box-shadow: 0 0 10px var(--danger-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* Attack Control Panel */
+        .attack-panel {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 900px) {
+            .attack-panel {
+                grid-column: span 1;
+            }
+        }
+
+        .attack-button {
+            width: 100%;
+            padding: 25px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--danger-red), #ff4060);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attack-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(255, 0, 64, 0.4);
+        }
+
+        .attack-button:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .attack-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .attack-button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        /* Cooldown Timer */
+        .cooldown-display {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .cooldown-timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--warning-orange);
+        }
+
+        /* Terminal Log */
+        .terminal {
+            background: #000;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            padding: 15px;
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: var(--matrix-dark-green);
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+        }
+
+        .log-stage {
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 0 5px;
+        }
+
+        .log-stage.INIT { background: var(--cyber-blue); color: #000; }
+        .log-stage.RECON { background: var(--cyber-purple); color: #fff; }
+        .log-stage.VULN { background: var(--warning-orange); color: #000; }
+        .log-stage.EXPLOIT { background: var(--danger-red); color: #fff; }
+        .log-stage.SUCCESS { background: var(--matrix-green); color: #000; }
+        .log-stage.ERROR { background: var(--danger-red); color: #fff; }
+        .log-stage.INFO { background: var(--text-muted); color: #000; }
+
+        /* Kill Chain Visualization */
+        .kill-chain {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .kill-chain-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            position: relative;
+        }
+
+        .kill-chain-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 25px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        .kill-chain-step.active:not(:last-child)::after {
+            background: var(--matrix-green);
+            box-shadow: 0 0 10px var(--matrix-green);
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .kill-chain-step.active .step-icon {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .kill-chain-step.complete .step-icon {
+            background: var(--matrix-green);
+            border-color: var(--matrix-green);
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .kill-chain-step.active .step-label,
+        .kill-chain-step.complete .step-label {
+            color: var(--matrix-green);
+        }
+
+        /* Splunk Link */
+        .splunk-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--cyber-blue);
+            border-radius: 6px;
+            color: var(--cyber-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .splunk-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--matrix-green);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 60px rgba(0, 255, 65, 0.2);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--matrix-green);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: var(--matrix-green);
+            color: #000;
+        }
+
+        .modal-btn.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--cyber-blue);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background Effect -->
+    <canvas class="matrix-bg" id="matrix"></canvas>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">PWNAGEBOX</h1>
+            <p class="tagline">AI-Powered Offensive Security Platform</p>
+            <p class="author">Developed by <strong>Shawn Daniel</strong> | Presient Labs</p>
+        </header>
+
+        <!-- Status Panel -->
+        <div class="status-panel">
+            <div class="status-item">
+                <span class="status-dot online" id="systemStatus"></span>
+                <span>System <strong id="systemStatusText">Online</strong></span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot online" id="splunkStatus"></span>
+                <span>Splunk SIEM <strong>Connected</strong></span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot online" id="targetStatus"></span>
+                <span>Target <strong>victim-ftp</strong></span>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Kill Chain Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🎯 Kill Chain Status</span>
+                </div>
+                <div class="panel-body">
+                    <div class="kill-chain">
+                        <div class="kill-chain-step" id="step-recon">
+                            <div class="step-icon">🔍</div>
+                            <span class="step-label">Recon</span>
+                        </div>
+                        <div class="kill-chain-step" id="step-vuln">
+                            <div class="step-icon">⚠️</div>
+                            <span class="step-label">Vuln</span>
+                        </div>
+                        <div class="kill-chain-step" id="step-exploit">
+                            <div class="step-icon">💣</div>
+                            <span class="step-label">Exploit</span>
+                        </div>
+                        <div class="kill-chain-step" id="step-pwned">
+                            <div class="step-icon">💀</div>
+                            <span class="step-label">Pwned</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📊 Monitoring</span>
+                </div>
+                <div class="panel-body" style="display: flex; flex-direction: column; gap: 15px;">
+                    <a href="http://localhost:8000" target="_blank" class="splunk-link">
+                        <span>📈</span> Open Splunk Dashboard
+                    </a>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">
+                        Login: <code>admin</code> / <code>PwnageBox2024!</code>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Attack Control Panel -->
+            <div class="panel attack-panel">
+                <div class="panel-header">
+                    <span class="panel-title">⚡ Attack Control</span>
+                </div>
+                <div class="panel-body">
+                    <button class="attack-button" id="attackBtn" onclick="openModal()">
+                        🚀 Initialize Attack Chain
+                    </button>
+                    <div class="cooldown-display" id="cooldownDisplay">
+                        Ready to execute
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Log -->
+            <div class="panel" style="grid-column: span 2;">
+                <div class="panel-header">
+                    <span class="panel-title">📟 Attack Log</span>
+                </div>
+                <div class="panel-body">
+                    <div class="terminal" id="terminal">
+                        <div class="log-entry">
+                            <span class="log-time">[--:--:--]</span>
+                            <span class="log-stage INFO">INFO</span>
+                            <span>PwnageBox Web Controller initialized. Awaiting attack command...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>PwnageBox v2.0 | <a href="https://github.com/willynikes2/PwnageBox" target="_blank">GitHub</a> | © 2025 Presient Labs</p>
+            <p style="margin-top: 10px;">⚠️ For authorized security testing and educational purposes only</p>
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 class="modal-title">🔐 Authorization Required</h2>
+            <input type="password" class="modal-input" id="accessCode" placeholder="Enter Access Code" autocomplete="off">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="executeAttack()">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff41';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        // State
+        let cooldownTimer = null;
+        let cooldownSeconds = 0;
+
+        // Terminal logging
+        function addLog(stage, message) {
+            const terminal = document.getElementById('terminal');
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0];
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-stage ${stage}">${stage}</span>
+                <span>${message}</span>
+            `;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Update kill chain visualization
+        function updateKillChain(stage) {
+            const steps = ['recon', 'vuln', 'exploit', 'pwned'];
+            const stageIndex = steps.indexOf(stage);
+            
+            steps.forEach((step, index) => {
+                const element = document.getElementById('step-' + step);
+                element.classList.remove('active', 'complete');
+                
+                if (index < stageIndex) {
+                    element.classList.add('complete');
+                } else if (index === stageIndex) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('accessCode').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('accessCode').value = '';
+        }
+
+        // Execute attack
+        async function executeAttack() {
+            const password = document.getElementById('accessCode').value;
+            closeModal();
+
+            addLog('INFO', 'Sending authorization request...');
+
+            try {
+                const response = await fetch('/launch_attack', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    addLog('SUCCESS', data.message);
+                    startCooldown(data.next_available);
+                    simulateAttackProgress();
+                } else {
+                    addLog('ERROR', data.error || 'Unknown error');
+                    if (data.cooldown_remaining) {
+                        startCooldown(data.cooldown_remaining);
+                    }
+                }
+            } catch (error) {
+                addLog('ERROR', 'Network error: ' + error.message);
+            }
+        }
+
+        // Cooldown timer
+        function startCooldown(seconds) {
+            cooldownSeconds = seconds;
+            const btn = document.getElementById('attackBtn');
+            const display = document.getElementById('cooldownDisplay');
+            
+            btn.disabled = true;
+            
+            if (cooldownTimer) clearInterval(cooldownTimer);
+            
+            cooldownTimer = setInterval(() => {
+                cooldownSeconds--;
+                
+                if (cooldownSeconds <= 0) {
+                    clearInterval(cooldownTimer);
+                    btn.disabled = false;
+                    display.innerHTML = 'Ready to execute';
+                } else {
+                    display.innerHTML = `Cooldown: <span class="cooldown-timer">${cooldownSeconds}s</span>`;
+                }
+            }, 1000);
+        }
+
+        // Simulate attack progress for UI feedback
+        function simulateAttackProgress() {
+            const stages = [
+                { delay: 1000, stage: 'recon', log: ['RECON', 'Initiating port scan on victim-ftp...'] },
+                { delay: 3000, stage: 'recon', log: ['RECON', 'Port 21/tcp OPEN - FTP service detected'] },
+                { delay: 5000, stage: 'vuln', log: ['VULN', 'Analyzing service: vsftpd 2.3.4'] },
+                { delay: 7000, stage: 'vuln', log: ['VULN', 'MATCH: CVE-2011-2523 (Backdoor Execution)'] },
+                { delay: 9000, stage: 'exploit', log: ['EXPLOIT', 'Loading: exploit/unix/ftp/vsftpd_234_backdoor'] },
+                { delay: 11000, stage: 'exploit', log: ['EXPLOIT', 'Executing exploit...'] },
+                { delay: 14000, stage: 'pwned', log: ['SUCCESS', '████ ROOT SHELL ESTABLISHED ████'] },
+            ];
+
+            stages.forEach(({ delay, stage, log }) => {
+                setTimeout(() => {
+                    updateKillChain(stage);
+                    addLog(log[0], log[1]);
+                }, delay);
+            });
+        }
+
+        // Check status periodically
+        async function checkStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                if (!data.can_attack && data.cooldown_remaining > 0) {
+                    startCooldown(data.cooldown_remaining);
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+
+        // Enter key handler for modal
+        document.getElementById('accessCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeAttack();
+            }
+        });
+
+        // Initial status check
+        checkStatus();
+        setInterval(checkStatus, 10000);
+    </script>
+</body>
+</html>

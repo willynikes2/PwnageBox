@@ -1,0 +1,210 @@
+<dashboard version="1.1" theme="dark">
+  <label>PwnageBox Security Operations Center</label>
+  <description>Real-time visualization of attack simulations and network telemetry</description>
+  
+  <row>
+    <panel>
+      <single>
+        <title>Alert Status</title>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" "ROOT SHELL" | stats count as alerts | eval status=if(alerts>0, "COMPROMISED", "SECURE")</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x65a637","0xd93f3c"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Active Attacks</title>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" | stats dc(host) as active_attacks</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Firewall Events</title>
+        <search>
+          <query>index=* sourcetype="cisco:ios" type="firewall" | stats count</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Blocked Connections</title>
+        <search>
+          <query>index=* sourcetype="cisco:ios" action="deny" | stats count</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x65a637","0xf7bc38","0xd93f3c"]</option>
+        <option name="rangeValues">[10,50]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Global Threat Map</title>
+      <map>
+        <search>
+          <query>index=* sourcetype="cisco:ios" src_lat=* src_lon=* | stats count by src_lat, src_lon, src_city, src_country | rename src_lat as lat, src_lon as lon | geostats latfield=lat longfield=lon count by src_country</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>30s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.type">marker</option>
+        <option name="mapping.map.center">(25,0)</option>
+        <option name="mapping.map.zoom">2</option>
+      </map>
+    </panel>
+    <panel>
+      <title>Kill Chain Timeline</title>
+      <event>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" | sort -_time | head 50 | table _time, stage, message, target</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>5s</refresh>
+        </search>
+        <option name="list.drilldown">none</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Attack Stage Distribution</title>
+      <chart>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" | stats count by stage | sort - count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>30s</refresh>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Traffic Over Time</title>
+      <chart>
+        <search>
+          <query>index=* (sourcetype="cisco:ios" OR sourcetype="pwnagebox:attack") | timechart span=1m count by sourcetype</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Firewall Actions</title>
+      <chart>
+        <search>
+          <query>index=* sourcetype="cisco:ios" type="firewall" | stats count by action</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>15s</refresh>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Source Countries</title>
+      <chart>
+        <search>
+          <query>index=* sourcetype="cisco:ios" src_country=* | stats count by src_country | sort - count | head 10</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>15s</refresh>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Targeted Ports</title>
+      <chart>
+        <search>
+          <query>index=* sourcetype="cisco:ios" dst_port=* | stats count by dst_port | sort - count | head 10</query>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+          <refresh>15s</refresh>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>CVE Detections</title>
+      <table>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" cve=* | stats count, latest(_time) as last_seen by cve, severity, cvss | sort - cvss</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>30s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Successful Compromises</title>
+      <table>
+        <search>
+          <query>index=* sourcetype="pwnagebox:attack" stage="SUCCESS" root_access=true | stats count by target, _time | sort - _time | head 10</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>10s</refresh>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Live Event Stream</title>
+      <event>
+        <search>
+          <query>index=* (sourcetype="pwnagebox:attack" OR sourcetype="cisco:ios") | sort - _time | head 100</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+          <refresh>5s</refresh>
+        </search>
+        <option name="count">20</option>
+        <option name="list.drilldown">none</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+
+</dashboard>
