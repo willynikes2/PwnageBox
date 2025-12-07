@@ -24,6 +24,7 @@ services:
     hostname: splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD:-PwnageBox2024!}
       - SPLUNK_HEC_TOKEN=${SPLUNK_TOKEN:-pwnagebox-hec-token-2024}
     ports:
@@ -31,7 +32,6 @@ services:
       - "8088:8088"   # HEC (HTTP Event Collector)
     volumes:
       - splunk_data:/opt/splunk/var
-      - ./splunk/dashboard.xml:/opt/splunk/etc/apps/search/local/data/ui/views/pwnagebox_dashboard.xml:ro
     networks:
       pwn_net:
         ipv4_address: 172.30.0.10
