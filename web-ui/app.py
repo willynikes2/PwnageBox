@@ -28,7 +28,10 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # Configuration
 # =============================================================================
-RECRUITER_PASSWORD = os.getenv('RECRUITER_PASSWORD', 'YOURPASSWORD')
+RECRUITER_PASSWORD = os.getenv('RECRUITER_PASSWORD', '')
+if not RECRUITER_PASSWORD or RECRUITER_PASSWORD == 'CHANGE_ME':
+    # Fail closed: never run the attack trigger with a missing or published access code.
+    raise SystemExit('RECRUITER_PASSWORD is not set; set it in .env')
 RATE_LIMIT_SECONDS = int(os.getenv('RATE_LIMIT_SECONDS', '45'))
 PWNBOX_CONTAINER = 'pwnbox'
 
