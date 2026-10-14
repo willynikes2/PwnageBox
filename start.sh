@@ -23,8 +23,15 @@ echo ""
 if [ ! -f .env ]; then
     echo "[!] No .env file found. Creating from .env.example..."
     cp .env.example .env
-    echo "[!] IMPORTANT: Edit .env to set your RECRUITER_PASSWORD!"
+    echo "[!] IMPORTANT: Edit .env and replace every CHANGE_ME value."
     echo ""
+fi
+
+# Refuse to start with a missing or placeholder secret.
+if grep -qE '^(SPLUNK_PASSWORD|SPLUNK_TOKEN|RECRUITER_PASSWORD)=(CHANGE_ME)?$' .env; then
+    echo "[X] .env still has an empty or CHANGE_ME value for SPLUNK_PASSWORD, SPLUNK_TOKEN or RECRUITER_PASSWORD."
+    echo "    Set your own values, then run ./start.sh again."
+    exit 1
 fi
 
 # Check Docker
@@ -64,7 +71,7 @@ echo "  • Splunk:    http://localhost:8000"
 echo ""
 echo "Splunk Credentials:"
 echo "  • Username:  admin"
-echo "  • Password:  PwnageBox2024! (or check SPLUNK_PASSWORD in .env)"
+echo "  • Password:  the SPLUNK_PASSWORD you set in .env"
 echo ""
 echo "Waiting for services to be ready..."
 echo ""

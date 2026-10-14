@@ -2,7 +2,7 @@
 
 **AI-Powered Offensive Security Simulation Platform**
 
-A production-ready, Dockerized cyber attack simulation lab designed for portfolio demonstration. Features a beautiful web interface, real-time Splunk SIEM integration, and hardened security controls.
+A Dockerized cyber attack simulation lab built for portfolio demonstration. Features a beautiful web interface, real-time Splunk SIEM integration, and hardened security controls.
 
 ![Version](https://img.shields.io/badge/version-2.0-green)
 ![Docker](https://img.shields.io/badge/docker-ready-blue)
@@ -94,7 +94,7 @@ docker-compose up -d --build
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | Web UI | http://localhost:80 | Access Code (from .env) |
-| Splunk | http://localhost:8000 | admin / PwnageBox2024! |
+| Splunk | http://localhost:8000 | admin / your `SPLUNK_PASSWORD` |
 
 ---
 
@@ -119,9 +119,9 @@ All containers have CPU/memory limits:
 | Victim | 0.25 | 128M |
 | Traffic Gen | 0.25 | 128M |
 
-### Network Isolation
-- Internal Docker network (pwn_net)
-- Only ports 80, 8000, 8088 exposed externally
+### Network
+- The containers share one Docker bridge network (pwn_net). It is not marked internal, so containers can reach the internet.
+- Ports 80 (web UI), 8000 (Splunk) and 8088 (Splunk HEC) are published on the host; put the lab behind a firewall or bind these to localhost on a shared server.
 
 ---
 
@@ -202,9 +202,9 @@ pwnagebox-lab/
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SPLUNK_PASSWORD` | PwnageBox2024! | Splunk admin password |
-| `SPLUNK_TOKEN` | pwnagebox-hec-token-2024 | HEC authentication token |
-| `RECRUITER_PASSWORD` | YOURPASSWORD | Web UI access code |
+| `SPLUNK_PASSWORD` | none, required | Splunk admin password |
+| `SPLUNK_TOKEN` | none, required | HEC authentication token |
+| `RECRUITER_PASSWORD` | none, required | Web UI access code |
 | `RATE_LIMIT_SECONDS` | 45 | Cooldown between attacks |
 
 ---

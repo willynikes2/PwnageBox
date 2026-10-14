@@ -31,7 +31,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Configuration
 # =============================================================================
 SPLUNK_HEC_URL = os.getenv('SPLUNK_HEC_URL', 'https://splunk:8088/services/collector/event')
-SPLUNK_HEC_TOKEN = os.getenv('SPLUNK_HEC_TOKEN', 'pwnagebox-hec-token-2024')
+SPLUNK_HEC_TOKEN = os.getenv('SPLUNK_HEC_TOKEN', '')
+if not SPLUNK_HEC_TOKEN:
+    raise SystemExit('SPLUNK_HEC_TOKEN is not set; set SPLUNK_TOKEN in .env')
 TARGET_HOST = os.getenv('TARGET_HOST', 'victim-ftp')
 TARGET_PORT = int(os.getenv('TARGET_PORT', '21'))
 
